@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Process Monitor</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .hostname { font-size: 20px; font-weight: bold; cursor: pointer; color: blue; }
+    .hidden { display: none; }
+    ul { list-style-type: none; padding-left: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Process Monitor</h1>
+  <div id="container"></div>
+
+  <script>
+    async function fetchData() {
+      const res = await fetch("/api/latest/");
+      const data = await res.json();
+
+      const container = document.getElementById("container");
+      container.innerHTML = "";
+
+      const hostEl = document.createElement("div");
+      hostEl.className = "hostname";
+      hostEl.innerText = data.hostname;
+
+      const detailsList = document.createElement("ul");
+      detailsList.className = "hidden";
+
+      // System Details
+      const sysLi = document.createElement("li");
+      sysLi.innerText = "System Details";
+      sysLi.onclick = () => alert(
+        `CPU: ${data.system_info.cpu_percent}%\n` +
+        `Memory: ${data.system_info.memory_used}/${data.system_info.memory_total} bytes\n` +
+        `Usage: ${data.system_info.memory_percent}%`
+      );
+      detailsList.appendChild(sysLi);
+
+      // Process Details
+      const procLi = document.createElement("li");
+      procLi.innerText = "Process Details";
+      procLi.onclick = () => alert(
+        "Processes:\n" + data.processes.map(p => `${p.name} (PID ${p.pid})`).join("\n")
+      );
+      detailsList.appendChild(procLi);
+
+      hostEl.onclick = () => {
+        detailsList.classList.toggle("hidden");
+      };
+
+      container.appendChild(hostEl);
+      container.appendChild(detailsList);
+    }
+
+    fetchData();
+  </script>
+</body>
+</html>
